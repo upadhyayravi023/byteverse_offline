@@ -25,30 +25,27 @@ exports.initialScan = async (qrId) => {
   if (!participant) throw new AppError('Participant not found', 404);
 
   const session = await mongoose.startSession();
-  session.startTransaction();
   try {
-    const existingLog = await ScanLog.findOne({
-      participantId: participant._id,
-      scanType: 'ENTRY',
-      breakType: 'INITIAL'
-    }).session(session);
+    return await session.withTransaction(async () => {
+      const existingLog = await ScanLog.findOne({
+        participantId: participant._id,
+        scanType: 'ENTRY',
+        breakType: 'INITIAL'
+      }).session(session);
 
-    if (existingLog) throw new AppError('Initial scan already completed', 400);
+      if (existingLog) throw new AppError('Initial scan already completed', 400);
 
-    const log = await ScanLog.create([{
-      participantId: participant._id,
-      scanType: 'ENTRY',
-      breakType: 'INITIAL',
-      violationFlag: false
-    }], { session });
+      const log = await ScanLog.create([{
+        participantId: participant._id,
+        scanType: 'ENTRY',
+        breakType: 'INITIAL',
+        violationFlag: false
+      }], { session });
 
-    participant.isInsideVenue = true;
-    await participant.save({ session });
-    await session.commitTransaction();
-    return log[0];
-  } catch (err) {
-    await session.abortTransaction();
-    throw err;
+      participant.isInsideVenue = true;
+      await participant.save({ session });
+      return log[0];
+    });
   } finally {
     session.endSession();
   }
@@ -66,21 +63,18 @@ exports.exitScan = async (qrId, breakType) => {
   }
 
   const session = await mongoose.startSession();
-  session.startTransaction();
   try {
-    const log = await ScanLog.create([{
-      participantId: participant._id,
-      scanType: 'EXIT',
-      breakType,
-    }], { session });
+    return await session.withTransaction(async () => {
+      const log = await ScanLog.create([{
+        participantId: participant._id,
+        scanType: 'EXIT',
+        breakType,
+      }], { session });
 
-    participant.isInsideVenue = false;
-    await participant.save({ session });
-    await session.commitTransaction();
-    return log[0];
-  } catch (err) {
-    await session.abortTransaction();
-    throw err;
+      participant.isInsideVenue = false;
+      await participant.save({ session });
+      return log[0];
+    });
   } finally {
     session.endSession();
   }
@@ -98,92 +92,81 @@ exports.entryScan = async (qrId) => {
   }
 
   const session = await mongoose.startSession();
-  session.startTransaction();
   try {
-    // Load configurable rules
-    const { maxShortBreaks, maxShortBreakDurationMins, maxSleepBreakDurationMins } = await loadSettings(session);
+    return await session.withTransaction(async () => {
+      // Load configurable rules
+      const { maxShortBreaks, maxShortBreakDurationMins, maxSleepBreakDurationMins } = await loadSettings(session);
 
-    // Find the last EXIT log
-    const lastExit = await ScanLog.findOne({
-      participantId: participant._id,
-      scanType: 'EXIT'
-    }).sort({ timestamp: -1 }).session(session);
-
-    if (!lastExit) {
-      throw new AppError('No prior EXIT log found to match an ENTRY.', 400);
-    }
-
-    const now = new Date();
-    const durationMins = Math.round((now - lastExit.timestamp) / 60000);
-    const breakType = lastExit.breakType;
-
-    let violationFlag = false;
-    const violationReasons = [];
-
-    // ── SLEEP BREAK RULES ─────────────────────────────────────────────────────
-    if (breakType === 'SLEEP') {
-      // Rule 1: Only one sleep break allowed
-      const allSleepExits = await ScanLog.countDocuments({
+      // Find the last EXIT log
+      const lastExit = await ScanLog.findOne({
         participantId: participant._id,
-        scanType: 'EXIT',
-        breakType: 'SLEEP'
-      }).session(session);
+        scanType: 'EXIT'
+      }).sort({ timestamp: -1 }).session(session);
 
-      if (allSleepExits > 1) {
-        violationFlag = true;
-        violationReasons.push(`Sleep break already taken previously (only 1 allowed).`);
+      if (!lastExit) {
+        throw new AppError('No prior EXIT log found to match an ENTRY.', 400);
       }
 
-      // Rule 2: Sleep break duration exceeded configured limit
-      if (durationMins > maxSleepBreakDurationMins) {
-        violationFlag = true;
-        violationReasons.push(
-          `Sleep break exceeded ${maxSleepBreakDurationMins} min limit (was ${durationMins} mins).`
-        );
-      }
-    }
+      const now = new Date();
+      const durationMins = Math.round((now - lastExit.timestamp) / 60000);
+      const breakType = lastExit.breakType;
 
-    // ── SHORT BREAK RULES ─────────────────────────────────────────────────────
-    else if (breakType === 'SHORT') {
-      const allShortExits = await ScanLog.countDocuments({
+      let violationFlag = false;
+      const violationReasons = [];
+
+      // ── SLEEP BREAK RULES ─────────────────────────────────────────────────────
+      if (breakType === 'SLEEP') {
+        const allSleepExits = await ScanLog.countDocuments({
+          participantId: participant._id,
+          scanType: 'EXIT',
+          breakType: 'SLEEP'
+        }).session(session);
+
+        if (allSleepExits > 1) {
+          violationFlag = true;
+          violationReasons.push(`Sleep break already taken previously (only 1 allowed).`);
+        }
+
+        if (durationMins > maxSleepBreakDurationMins) {
+          violationFlag = true;
+          violationReasons.push(`Sleep break exceeded ${maxSleepBreakDurationMins} min limit (was ${durationMins} mins).`);
+        }
+      }
+
+      // ── SHORT BREAK RULES ─────────────────────────────────────────────────────
+      else if (breakType === 'SHORT') {
+        const allShortExits = await ScanLog.countDocuments({
+          participantId: participant._id,
+          scanType: 'EXIT',
+          breakType: 'SHORT'
+        }).session(session);
+
+        if (allShortExits > maxShortBreaks) {
+          violationFlag = true;
+          violationReasons.push(`Maximum of ${maxShortBreaks} short breaks exceeded.`);
+        }
+
+        if (durationMins > maxShortBreakDurationMins) {
+          violationFlag = true;
+          violationReasons.push(`Short break exceeded ${maxShortBreakDurationMins} min limit (was ${durationMins} mins).`);
+        }
+      }
+
+      // Create Entry Log
+      const entryLog = await ScanLog.create([{
         participantId: participant._id,
-        scanType: 'EXIT',
-        breakType: 'SHORT'
-      }).session(session);
+        scanType: 'ENTRY',
+        breakType,
+        violationFlag,
+        violationReason: violationReasons.join(' ') || undefined,
+        breakDurationMins: durationMins,
+      }], { session });
 
-      // Rule 1: Short break count exceeded
-      if (allShortExits > maxShortBreaks) {
-        violationFlag = true;
-        violationReasons.push(`Maximum of ${maxShortBreaks} short breaks exceeded.`);
-      }
+      participant.isInsideVenue = true;
+      await participant.save({ session });
 
-      // Rule 2: This individual short break duration exceeded configured limit
-      if (durationMins > maxShortBreakDurationMins) {
-        violationFlag = true;
-        violationReasons.push(
-          `Short break exceeded ${maxShortBreakDurationMins} min limit (was ${durationMins} mins).`
-        );
-      }
-    }
-
-    // Create Entry Log
-    const entryLog = await ScanLog.create([{
-      participantId: participant._id,
-      scanType: 'ENTRY',
-      breakType,
-      violationFlag,
-      violationReason: violationReasons.join(' ') || undefined,
-      breakDurationMins: durationMins,
-    }], { session });
-
-    participant.isInsideVenue = true;
-    await participant.save({ session });
-    await session.commitTransaction();
-
-    return { ...entryLog[0].toObject(), violationFlag, violationReason: violationReasons.join(' ') };
-  } catch (err) {
-    await session.abortTransaction();
-    throw err;
+      return { ...entryLog[0].toObject(), violationFlag, violationReason: violationReasons.join(' ') };
+    });
   } finally {
     session.endSession();
   }
