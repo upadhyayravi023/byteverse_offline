@@ -97,6 +97,12 @@ export const api = {
     return res.json();
   },
 
+  getParticipantStatus: async (qrId: string) => {
+    const res = await fetch(`${API_BASE}/participants/${qrId}`);
+    if (!res.ok) throw new Error('Failed to fetch participant status');
+    return res.json();
+  },
+
   getSettings: async () => {
     const res = await fetch(`${API_BASE}/admin/settings`);
     if (!res.ok) throw new Error('Failed to fetch settings');

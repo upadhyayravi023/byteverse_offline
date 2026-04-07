@@ -7,6 +7,7 @@ import SettingsPanel from '../components/admin/SettingsPanel';
 import TeamDetailsModal from '../components/admin/TeamDetailsModal';
 import ViolationModal from '../components/admin/ViolationModal';
 import FilterControls, { type FilterStatusType, type FilterViolationType } from '../components/admin/FilterControls';
+import ParticipantHistoryModal from '../components/admin/ParticipantHistoryModal';
 import { api } from '../api/api';
 import { Users, FileWarning, Fingerprint, Loader2, LayoutList, ShieldHalf, Settings, Search } from 'lucide-react';
 import { toast } from 'sonner';
@@ -21,6 +22,7 @@ const AdminDashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [isViolationModalOpen, setIsViolationModalOpen] = useState(false);
+  const [selectedHistoryQrId, setSelectedHistoryQrId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -139,7 +141,7 @@ const AdminDashboard: React.FC = () => {
                     <div className="flex items-center justify-between mt-4 mb-2">
                       <h2 className="text-lg font-bold text-slate-900">Participant Details</h2>
                     </div>
-                    <ParticipantTable data={filteredParticipants} />
+                    <ParticipantTable data={filteredParticipants} onParticipantClick={setSelectedHistoryQrId} />
                   </div>
                 )}
 
@@ -189,6 +191,13 @@ const AdminDashboard: React.FC = () => {
         <ViolationModal 
           participants={participants.filter(p => p.hasViolation)} 
           onClose={() => setIsViolationModalOpen(false)} 
+        />
+      )}
+
+      {selectedHistoryQrId && (
+        <ParticipantHistoryModal 
+          qrId={selectedHistoryQrId} 
+          onClose={() => setSelectedHistoryQrId(null)} 
         />
       )}
     </div>

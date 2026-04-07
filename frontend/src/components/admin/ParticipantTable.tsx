@@ -13,9 +13,10 @@ interface Participant {
 
 interface Props {
   data: Participant[];
+  onParticipantClick?: (qrId: string) => void;
 }
 
-const ParticipantTable: React.FC<Props> = ({ data }) => {
+const ParticipantTable: React.FC<Props> = ({ data, onParticipantClick }) => {
   return (
     <div className="w-full bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden text-sm">
 
@@ -25,7 +26,7 @@ const ParticipantTable: React.FC<Props> = ({ data }) => {
           <p className="px-4 py-8 text-center text-slate-400 text-sm">No participants found.</p>
         )}
         {data.map((p) => (
-          <div key={p.id} className="flex items-start gap-3 px-4 py-3.5">
+          <div key={p.id} onClick={() => onParticipantClick && onParticipantClick(p.qrId)} className="flex items-start gap-3 px-4 py-3.5 cursor-pointer hover:bg-slate-50 transition-colors active:bg-slate-100">
             {/* Status dot */}
             <span className={`mt-1 h-2.5 w-2.5 rounded-full shrink-0 ${p.inside ? 'bg-emerald-500' : 'bg-slate-300'}`} />
             <div className="flex-1 min-w-0">
@@ -62,7 +63,7 @@ const ParticipantTable: React.FC<Props> = ({ data }) => {
           </thead>
           <tbody className="divide-y divide-slate-100">
             {data.map((p) => (
-              <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
+              <tr key={p.id} onClick={() => onParticipantClick && onParticipantClick(p.qrId)} className="hover:bg-slate-50/80 transition-colors cursor-pointer group">
                 <td className="px-5 py-3.5 font-medium text-slate-900">{p.name}</td>
                 <td className="px-5 py-3.5 text-slate-600">{p.team}</td>
                 <td className="px-5 py-3.5 text-slate-600">{p.rollNumber}</td>
