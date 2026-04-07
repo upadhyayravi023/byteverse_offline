@@ -24,7 +24,6 @@ const participantSchema = new mongoose.Schema(
     },
     hostel: {
       type: String,
-      required: [true, 'Please add hostel information'],
     },
     qrId: {
       type: String,

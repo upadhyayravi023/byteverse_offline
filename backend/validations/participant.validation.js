@@ -7,7 +7,6 @@ exports.registerParticipantSchema = z.object({
     name: z.string().min(1, 'name is required'),
     rollNumber: z.string().min(1, 'rollNumber is required'),
     mobile: z.string().min(1, 'mobile is required'),
-    hostel: z.string().min(1, 'hostel is required'),
     qrId: z.string().min(1, 'qrId is required'),
   }),
 });
