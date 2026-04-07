@@ -11,7 +11,7 @@ interface ScanResultOverlayProps {
 const ScanResultOverlay: React.FC<ScanResultOverlayProps> = ({ result, onClear, onRegister }) => {
   if (!result) return null;
 
-  const isViolation = !!result.violationAlert || !result.success;
+  const isViolation = !result.success; // Only treat it as an error if the request actually failed
   const bgColor = isViolation ? 'bg-red-500' : 'bg-emerald-500';
   const Icon = isViolation ? XCircle : CheckCircle;
 
@@ -19,7 +19,7 @@ const ScanResultOverlay: React.FC<ScanResultOverlayProps> = ({ result, onClear, 
     <div className={`fixed inset-0 z-50 flex flex-col items-center justify-center ${bgColor} text-white p-6 animate-in fade-in zoom-in duration-200`}>
        <Icon className="w-32 h-32 mb-6" />
        <h1 className="text-4xl font-black mb-2 text-center uppercase tracking-wide">
-         {isViolation ? 'Violation Detected' : 'Scan Successful'}
+         {isViolation ? 'Error Detected' : 'Scan Successful'}
        </h1>
        
        <div className="text-center mt-4">
@@ -27,7 +27,7 @@ const ScanResultOverlay: React.FC<ScanResultOverlayProps> = ({ result, onClear, 
             {result.data?.qrId || 'Unknown QR ID'}
          </p>
          <p className="text-lg opacity-90 mt-4 max-w-sm">
-           {isViolation ? (result.violationAlert || result.message) : result.message}
+           {result.message}
          </p>
        </div>
 

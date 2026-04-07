@@ -12,6 +12,7 @@ const ScannerPage: React.FC = () => {
   const [result, setResult] = useState<ScanResult | null>(null);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [unknownQrId, setUnknownQrId] = useState<string | null>(null);
+  const [exitConfirmData, setExitConfirmData] = useState<{qrId: string, breakType: BreakType, violationCount: number} | null>(null);
 
   const handleScan = async (data: string) => {
     if (isLoading || result) return;
@@ -23,7 +24,27 @@ const ScannerPage: React.FC = () => {
           res = await api.initialScan(data);
           break;
         case 'EXIT':
-          res = await api.exitScan(data, breakType === 'NONE' ? 'SHORT' : breakType);
+          const targetBreak = breakType === 'NONE' ? 'SHORT' : breakType;
+          try {
+            const statusRes = await api.getParticipantStatus(data);
+            if (statusRes.success) {
+              const stats = statusRes.data.stats;
+              const history = statusRes.data.history || [];
+              let limitReached = false;
+              if (targetBreak === 'SHORT' && stats.shortBreaksRemaining === 0) limitReached = true;
+              if (targetBreak === 'SLEEP' && stats.sleepBreakTaken) limitReached = true;
+
+              if (limitReached) {
+                const violationCount = history.filter((l: any) => l.violationFlag).length;
+                setExitConfirmData({ qrId: data, breakType: targetBreak as BreakType, violationCount });
+                setIsLoading(false);
+                return; // Wait for user interaction
+              }
+            }
+          } catch (e) {
+            // Ignore error here and let the regular exitScan handle it gracefully
+          }
+          res = await api.exitScan(data, targetBreak);
           break;
         case 'ENTRY':
         default:
@@ -39,6 +60,20 @@ const ScannerPage: React.FC = () => {
       }
     } catch (err: any) {
       setResult({ success: false, data: { qrId: data }, message: err.message || 'Network error.' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const forceExit = async (qrId: string, bType: BreakType) => {
+    setExitConfirmData(null);
+    if (isLoading || result) return;
+    setIsLoading(true);
+    try {
+      const res = await api.exitScan(qrId, bType);
+      setResult(res);
+    } catch (err: any) {
+      setResult({ success: false, data: { qrId }, message: err.message || 'Network error.' });
     } finally {
       setIsLoading(false);
     }
@@ -179,6 +214,47 @@ const ScannerPage: React.FC = () => {
           onClose={() => { setIsRegisterOpen(false); setUnknownQrId(null); }}
           initialQrId={unknownQrId || result?.data?.qrId}
         />
+      )}
+
+      {/* Limit Confirmation Overlay */}
+      {exitConfirmData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl relative animate-in zoom-in-95 duration-200 border border-white/20">
+            <div className="mb-4">
+              <h3 className="text-xl font-black text-rose-600 mb-1">Limit Reached!</h3>
+              <p className="text-sm font-medium text-slate-500">
+                They have already hit the <span className="font-extrabold text-slate-800">{exitConfirmData.breakType}</span> break limit.
+              </p>
+            </div>
+            
+            <div className="bg-rose-50 border border-dashed border-rose-200 rounded-xl p-3 mb-5 flex items-center gap-3">
+              <div className="bg-white text-rose-600 font-black h-10 w-10 flex items-center justify-center rounded-lg shadow-sm border border-rose-100 shrink-0">
+                {exitConfirmData.violationCount}
+              </div>
+              <p className="text-sm font-semibold text-rose-900 leading-tight">
+                previous violations on record for this volunteer.
+              </p>
+            </div>
+
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Do you still want to proceed?</p>
+            
+            <div className="flex gap-2.5">
+              <button 
+                onClick={() => setExitConfirmData(null)}
+                className="flex-1 py-3 px-2 text-sm font-bold text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => forceExit(exitConfirmData.qrId, exitConfirmData.breakType)}
+                className="flex-[1.5] py-3 px-2 text-sm font-bold text-white bg-rose-600 rounded-xl hover:bg-rose-700 hover:shadow-lg hover:shadow-rose-600/30 transition-all flex items-center justify-center gap-1.5"
+              >
+                <LogOut className="w-4 h-4 ml-1" />
+                Let Them Exit
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
