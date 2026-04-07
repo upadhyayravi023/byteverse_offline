@@ -20,7 +20,6 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, initialQ
     teamId: '',
     rollNumber: '',
     mobile: '',
-    hostel: 'Hostel 1',
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -45,8 +44,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, initialQ
     try {
       const payload = {
         ...formData,
-        teamId: formData.teamId || formData.teamName || 'TEAM-X',
-        teamName: formData.teamName || 'Solo',
+        teamId: formData.teamId || formData.teamName,
+        teamName: formData.teamName,
       };
       const res = await api.register(payload);
       if (res.success) {
@@ -161,33 +160,17 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, initialQ
             </div>
           </div>
 
-          {/* Team + Hostel */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={LABEL_BASE}>Team Name</label>
-              <input
-                name="teamName"
-                value={formData.teamName}
-                onChange={handleChange}
-                className={INPUT_BASE}
-                placeholder="Optional"
-              />
-            </div>
-            <div>
-              <label className={LABEL_BASE}>Hostel</label>
-              <select
-                name="hostel"
-                value={formData.hostel}
-                onChange={handleChange}
-                className={`${INPUT_BASE} cursor-pointer`}
-              >
-                <option>Hostel 1</option>
-                <option>Hostel 2</option>
-                <option>Hostel 3</option>
-                <option>Hostel 4</option>
-                <option>Day Scholar</option>
-              </select>
-            </div>
+          {/* Team Name */}
+          <div>
+            <label className={LABEL_BASE}>Team Name</label>
+            <input
+              required
+              name="teamName"
+              value={formData.teamName}
+              onChange={handleChange}
+              className={INPUT_BASE}
+              placeholder="e.g. Team Alpha"
+            />
           </div>
 
         </form>
