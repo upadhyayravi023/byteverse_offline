@@ -20,3 +20,38 @@
   background-size: 40px 40px;
   border: solid 2px transparent;
 }
+
+/* Premium reticle v2 - glowing blue corners */
+.custom-scanner-reticle-v2 {
+  background: 
+    linear-gradient(to right, #60a5fa 3px, transparent 3px) 12px 12px,
+    linear-gradient(to right, #60a5fa 3px, transparent 3px) 12px calc(100% - 12px),
+    linear-gradient(to left,  #60a5fa 3px, transparent 3px) calc(100% - 12px) 12px,
+    linear-gradient(to left,  #60a5fa 3px, transparent 3px) calc(100% - 12px) calc(100% - 12px),
+    linear-gradient(to bottom, #60a5fa 3px, transparent 3px) 12px 12px,
+    linear-gradient(to bottom, #60a5fa 3px, transparent 3px) calc(100% - 12px) 12px,
+    linear-gradient(to top,   #60a5fa 3px, transparent 3px) 12px calc(100% - 12px),
+    linear-gradient(to top,   #60a5fa 3px, transparent 3px) calc(100% - 12px) calc(100% - 12px);
+  background-repeat: no-repeat;
+  background-size: 36px 36px;
+  filter: drop-shadow(0 0 6px #60a5fa88);
+}
+
+/* Animated scanning line */
+@keyframes scanline {
+  0%   { transform: translateY(0%); opacity: 0.9; }
+  48%  { opacity: 0.9; }
+  50%  { transform: translateY(calc(100vh)); opacity: 0; }
+  50.01% { transform: translateY(0%); opacity: 0; }
+  52%  { opacity: 0.9; }
+  100% { transform: translateY(calc(100vh)); opacity: 0.9; }
+}
+
+.scanner-line-animation {
+  animation: scanline 3s linear infinite;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+}
+
