@@ -58,6 +58,11 @@ exports.exitScan = async (qrId, breakType) => {
   const participant = await Participant.findOne({ qrId });
   if (!participant) throw new AppError('Participant not found', 404);
 
+  const hasInitial = await ScanLog.findOne({ participantId: participant._id, breakType: 'INITIAL' });
+  if (!hasInitial) {
+    throw new AppError('Participant is registered but requires an Initial Entry scan first.', 400);
+  }
+
   if (!participant.isInsideVenue) {
     throw new AppError('Participant is already outside the venue', 400);
   }
@@ -86,6 +91,11 @@ exports.exitScan = async (qrId, breakType) => {
 exports.entryScan = async (qrId) => {
   const participant = await Participant.findOne({ qrId });
   if (!participant) throw new AppError('Participant not found', 404);
+
+  const hasInitial = await ScanLog.findOne({ participantId: participant._id, breakType: 'INITIAL' });
+  if (!hasInitial) {
+    throw new AppError('Participant is registered but requires an Initial Entry scan first.', 400);
+  }
 
   if (participant.isInsideVenue) {
     throw new AppError('Participant is already inside the venue', 400);

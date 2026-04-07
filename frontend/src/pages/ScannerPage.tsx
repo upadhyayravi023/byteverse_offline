@@ -84,7 +84,7 @@ const ScannerPage: React.FC = () => {
   const modeConfig = {
     ENTRY:   { label: 'Entry Mode',    color: 'text-emerald-400', dot: 'bg-emerald-400', hint: 'Scan QR code to log participant entry' },
     EXIT:    { label: 'Exit Mode',     color: 'text-rose-400',    dot: 'bg-rose-400',    hint: 'Select break type, then scan to exit' },
-    INITIAL: { label: 'Register Mode', color: 'text-blue-400',    dot: 'bg-blue-400',    hint: 'Scan to register a new participant' },
+    INITIAL: { label: 'Initial Scan', color: 'text-blue-400',    dot: 'bg-blue-400',    hint: 'Scan for initial participant entry' },
   };
   const currentMode = modeConfig[mode];
 
@@ -150,7 +150,7 @@ const ScannerPage: React.FC = () => {
         {/* Mode selector tabs */}
         <div className="bg-white/5 border border-white/[0.07] backdrop-blur-sm p-1.5 rounded-2xl flex gap-1.5">
           <ModeToggle
-            icon={<Scan size={18} />} label="Register"
+            icon={<Scan size={18} />} label="Initial Scan"
             isActive={mode === 'INITIAL'} activeClass="bg-blue-600 shadow-lg shadow-blue-600/30"
             onClick={() => setMode('INITIAL')}
           />
