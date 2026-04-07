@@ -96,7 +96,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, initialQ
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+        <form id="reg-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
 
           {/* QR ID — auto-filled and readonly when scanned */}
           <div>
@@ -180,8 +180,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, initialQ
           <button
             disabled={isLoading}
             type="submit"
-            form=""
-            onClick={handleSubmit as any}
+            form="reg-form"
             className="w-full bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold py-4 rounded-2xl transition-all duration-200 shadow-lg shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isLoading
