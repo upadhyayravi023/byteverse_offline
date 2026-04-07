@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { api } from '../../api/api';
-import { Loader2, UserPlus, X } from 'lucide-react';
+import { Loader2, UserPlus, X, QrCode, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface RegisterModalProps {
@@ -9,9 +9,12 @@ interface RegisterModalProps {
   initialQrId?: string | null;
 }
 
+const INPUT_BASE = "w-full bg-[#0f1729] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition-all duration-200";
+const LABEL_BASE = "block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5";
+
 const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, initialQrId }) => {
   const [formData, setFormData] = useState({
-    qrId: initialQrId || '',
+    qrId: '',
     name: '',
     teamName: '',
     teamId: '',
@@ -20,6 +23,15 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, initialQ
     hostel: 'Hostel 1',
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  // Auto-populate QR ID when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setFormData(prev => ({ ...prev, qrId: initialQrId || '' }));
+      setIsSuccess(false);
+    }
+  }, [isOpen, initialQrId]);
 
   if (!isOpen) return null;
 
@@ -31,16 +43,16 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, initialQ
     e.preventDefault();
     setIsLoading(true);
     try {
-      // teamId and teamName might be the same if solo, but let's just submit
       const payload = {
         ...formData,
-        teamId: formData.teamId || 'TEAM-X',
+        teamId: formData.teamId || formData.teamName || 'TEAM-X',
         teamName: formData.teamName || 'Solo',
       };
       const res = await api.register(payload);
       if (res.success) {
+        setIsSuccess(true);
         toast.success('Participant registered successfully!');
-        onClose();
+        setTimeout(() => onClose(), 1800);
       } else {
         toast.error(res.error || res.message || 'Registration failed');
       }
@@ -52,40 +64,123 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, initialQ
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
-      <div className="bg-slate-800 rounded-2xl w-full max-w-md shadow-2xl border border-slate-700 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-4 border-b border-slate-700 sticky top-0 bg-slate-800">
-          <h2 className="text-lg font-bold flex items-center gap-2"><UserPlus className="w-5 h-5 text-blue-400" /> Register Participant</h2>
-          <button onClick={onClose} className="p-1 hover:bg-slate-700 rounded-full"><X className="w-5 h-5" /></button>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+
+      {/* Success state */}
+      {isSuccess && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-emerald-500 text-white animate-in zoom-in duration-300">
+          <CheckCircle className="w-24 h-24 mb-4" />
+          <h2 className="text-3xl font-black tracking-tight">Registered!</h2>
+          <p className="text-emerald-100 mt-2 font-medium">{formData.name} is now in the system.</p>
         </div>
-        
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
-          <div>
-            <label className="text-xs font-semibold text-slate-400 uppercase">QR Code ID</label>
-            <input required name="qrId" value={formData.qrId} onChange={handleChange} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 mt-1 focus:ring-2 focus:ring-blue-500 font-mono" placeholder="Scan or type..." />
+      )}
+
+      <div className="w-full sm:max-w-md bg-[#0d1426] border border-white/10 rounded-t-3xl sm:rounded-2xl shadow-2xl max-h-[92dvh] flex flex-col animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300">
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/[0.07] shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/30">
+              <UserPlus className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-base font-black text-white leading-none tracking-tight">Register Participant</h2>
+              <p className="text-xs text-slate-500 mt-0.5 font-medium">Fill in the details below</p>
+            </div>
           </div>
+          <button
+            onClick={onClose}
+            className="p-2 text-slate-500 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+
+          {/* QR ID — auto-filled and readonly when scanned */}
           <div>
-            <label className="text-xs font-semibold text-slate-400 uppercase">Full Name</label>
-            <input required name="name" value={formData.name} onChange={handleChange} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 mt-1 focus:ring-2 focus:ring-blue-500" placeholder="Jane Doe" />
+            <label className={LABEL_BASE}>QR Code ID</label>
+            <div className="relative">
+              <QrCode className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-400" />
+              <input
+                required
+                name="qrId"
+                value={formData.qrId}
+                onChange={handleChange}
+                readOnly={!!initialQrId}
+                className={`${INPUT_BASE} pl-10 ${initialQrId ? 'opacity-60 cursor-not-allowed font-mono text-blue-300 bg-blue-500/5 border-blue-500/20' : ''}`}
+                placeholder="Scan QR or enter ID manually"
+              />
+            </div>
+            {initialQrId && (
+              <p className="text-xs text-blue-400/70 mt-1.5 ml-1 font-medium">Auto-filled from scanned QR code</p>
+            )}
           </div>
+
+          {/* Full Name */}
+          <div>
+            <label className={LABEL_BASE}>Full Name</label>
+            <input
+              required
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className={INPUT_BASE}
+              placeholder="e.g. Ravi Kumar"
+              autoFocus={!initialQrId}
+            />
+          </div>
+
+          {/* Roll + Mobile */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold text-slate-400 uppercase">Roll Number</label>
-              <input required name="rollNumber" value={formData.rollNumber} onChange={handleChange} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 mt-1 focus:ring-2 focus:ring-blue-500 uppercase" placeholder="123456" />
+              <label className={LABEL_BASE}>Roll Number</label>
+              <input
+                required
+                name="rollNumber"
+                value={formData.rollNumber}
+                onChange={handleChange}
+                className={`${INPUT_BASE} uppercase`}
+                placeholder="e.g. 22CS101"
+              />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-400 uppercase">Mobile</label>
-              <input required name="mobile" value={formData.mobile} onChange={handleChange} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 mt-1 focus:ring-2 focus:ring-blue-500" placeholder="9876543210" />
+              <label className={LABEL_BASE}>Mobile</label>
+              <input
+                required
+                name="mobile"
+                value={formData.mobile}
+                onChange={handleChange}
+                className={INPUT_BASE}
+                placeholder="10-digit"
+                type="tel"
+                maxLength={10}
+              />
             </div>
           </div>
+
+          {/* Team + Hostel */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold text-slate-400 uppercase">Team Name</label>
-              <input name="teamName" value={formData.teamName} onChange={handleChange} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 mt-1 focus:ring-2 focus:ring-blue-500" placeholder="Optional" />
+              <label className={LABEL_BASE}>Team Name</label>
+              <input
+                name="teamName"
+                value={formData.teamName}
+                onChange={handleChange}
+                className={INPUT_BASE}
+                placeholder="Optional"
+              />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-400 uppercase">Hostel</label>
-              <select name="hostel" value={formData.hostel} onChange={handleChange} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 mt-1 focus:ring-2 focus:ring-blue-500">
+              <label className={LABEL_BASE}>Hostel</label>
+              <select
+                name="hostel"
+                value={formData.hostel}
+                onChange={handleChange}
+                className={`${INPUT_BASE} cursor-pointer`}
+              >
                 <option>Hostel 1</option>
                 <option>Hostel 2</option>
                 <option>Hostel 3</option>
@@ -94,11 +189,24 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, initialQ
               </select>
             </div>
           </div>
-          
-          <button disabled={isLoading} type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 mt-4 rounded-xl disabled:opacity-50">
-            {isLoading ? <Loader2 className="w-5 h-5 mx-auto animate-spin" /> : 'Complete Registration'}
-          </button>
+
         </form>
+
+        {/* Submit Footer */}
+        <div className="px-6 pb-8 pt-4 border-t border-white/[0.07] shrink-0">
+          <button
+            disabled={isLoading}
+            type="submit"
+            form=""
+            onClick={handleSubmit as any}
+            className="w-full bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold py-4 rounded-2xl transition-all duration-200 shadow-lg shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {isLoading
+              ? <><Loader2 className="w-5 h-5 animate-spin" /> Registering...</>
+              : <><UserPlus className="w-5 h-5" /> Complete Registration</>
+            }
+          </button>
+        </div>
       </div>
     </div>
   );
