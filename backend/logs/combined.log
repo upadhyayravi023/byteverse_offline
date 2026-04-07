@@ -1,0 +1,57 @@
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 03:19:42"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 03:19:42"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-01.nttagip.mongodb.net","timestamp":"2026-04-07 03:19:44"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-00.nttagip.mongodb.net","timestamp":"2026-04-07 03:19:44"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 03:36:17"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-01.nttagip.mongodb.net","timestamp":"2026-04-07 03:36:18"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:01:27"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:01:27"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:01:27"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-02.nttagip.mongodb.net","timestamp":"2026-04-07 04:01:28"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-02.nttagip.mongodb.net","timestamp":"2026-04-07 04:01:28"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-00.nttagip.mongodb.net","timestamp":"2026-04-07 04:01:28"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:02:03"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:02:03"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:02:03"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-02.nttagip.mongodb.net","timestamp":"2026-04-07 04:02:04"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-01.nttagip.mongodb.net","timestamp":"2026-04-07 04:02:04"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-02.nttagip.mongodb.net","timestamp":"2026-04-07 04:02:04"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:02:31"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:02:32"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:02:32"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-00.nttagip.mongodb.net","timestamp":"2026-04-07 04:02:33"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-02.nttagip.mongodb.net","timestamp":"2026-04-07 04:02:33"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-00.nttagip.mongodb.net","timestamp":"2026-04-07 04:02:33"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:10:45"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:10:45"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:10:45"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-00.nttagip.mongodb.net","timestamp":"2026-04-07 04:10:46"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-02.nttagip.mongodb.net","timestamp":"2026-04-07 04:10:46"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-01.nttagip.mongodb.net","timestamp":"2026-04-07 04:10:46"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:14:47"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:14:47"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:14:47"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-02.nttagip.mongodb.net","timestamp":"2026-04-07 04:14:48"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-00.nttagip.mongodb.net","timestamp":"2026-04-07 04:14:48"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-00.nttagip.mongodb.net","timestamp":"2026-04-07 04:14:48"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:15:05"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:15:05"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:15:05"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-01.nttagip.mongodb.net","timestamp":"2026-04-07 04:15:06"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-02.nttagip.mongodb.net","timestamp":"2026-04-07 04:15:06"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-02.nttagip.mongodb.net","timestamp":"2026-04-07 04:15:06"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:15:23"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:15:23"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:15:23"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-00.nttagip.mongodb.net","timestamp":"2026-04-07 04:15:24"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-00.nttagip.mongodb.net","timestamp":"2026-04-07 04:15:24"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-00.nttagip.mongodb.net","timestamp":"2026-04-07 04:15:24"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:22:21"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:22:21"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 04:22:21"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-02.nttagip.mongodb.net","timestamp":"2026-04-07 04:22:22"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-01.nttagip.mongodb.net","timestamp":"2026-04-07 04:22:22"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-00.nttagip.mongodb.net","timestamp":"2026-04-07 04:22:22"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 07:26:30"}
+{"level":"info","message":"✅ MongoDB Connected: ac-inrdloe-shard-00-01.nttagip.mongodb.net","timestamp":"2026-04-07 07:26:32"}
+{"level":"info","message":"✅ Server running in ${config.NODE_ENV} mode on port ${config.PORT}","timestamp":"2026-04-07 07:32:48"}
