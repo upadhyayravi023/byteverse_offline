@@ -85,7 +85,7 @@ const SettingsPanel: React.FC = () => {
             <Coffee className="w-4 h-4 text-blue-600" />
             <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide">Short Break Rules</h3>
           </div>
-          <div className="grid sm:grid-cols-2 gap-6 pl-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pl-4 sm:pl-6">
 
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-slate-600">
@@ -133,7 +133,7 @@ const SettingsPanel: React.FC = () => {
             <Moon className="w-4 h-4 text-indigo-600" />
             <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide">Sleep Break Rules</h3>
           </div>
-          <div className="grid sm:grid-cols-2 gap-6 pl-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pl-4 sm:pl-6">
 
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-slate-600">

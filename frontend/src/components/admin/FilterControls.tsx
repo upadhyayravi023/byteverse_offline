@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Filter, XCircle } from 'lucide-react';
+import { Search, SlidersHorizontal, XCircle } from 'lucide-react';
 
 export type FilterStatusType = 'ALL' | 'INSIDE' | 'OUTSIDE';
 export type FilterViolationType = 'ALL' | 'ONLY_VIOLATORS';
@@ -14,34 +14,37 @@ interface FilterControlsProps {
   className?: string;
 }
 
-const FilterControls: React.FC<FilterControlsProps> = ({ 
-  search, setSearch, status, setStatus, violation, setViolation, className = "" 
+const SELECT_CLASS = "text-sm border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 hover:bg-white transition-all duration-200 cursor-pointer w-full";
+
+const FilterControls: React.FC<FilterControlsProps> = ({
+  search, setSearch, status, setStatus, violation, setViolation, className = ""
 }) => {
   const hasFilters = search !== '' || status !== 'ALL' || violation !== 'ALL';
 
   return (
-    <div className={`bg-white/80 backdrop-blur-md border border-slate-200 shadow-sm rounded-xl p-4 flex flex-col md:flex-row gap-4 items-center justify-between transition-all duration-300 ${className}`}>
-      
-      {/* Search Bar - Takes priority */}
-      <div className="relative w-full md:w-96 flex-shrink-0 group">
+    <div className={`bg-white/80 backdrop-blur-md border border-slate-200 shadow-sm rounded-xl p-3 sm:p-4 space-y-3 ${className}`}>
+
+      {/* Search bar — full width always */}
+      <div className="relative w-full group">
         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-        <input 
-          type="text" 
+        <input
+          type="text"
           placeholder="Search by Name, Team, or QR ID..."
-          className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 hover:bg-white transition-all duration-300 shadow-inner"
+          className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 hover:bg-white transition-all duration-300"
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
       </div>
 
-      <div className="flex w-full md:w-auto items-center gap-3 overflow-x-auto pb-1 md:pb-0">
-        <div className="flex items-center gap-2 text-slate-500 shrink-0">
-           <Filter className="w-4 h-4" />
-           <span className="text-sm font-medium">Filter:</span>
+      {/* Filters row */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-1.5 text-slate-500 shrink-0">
+          <SlidersHorizontal className="w-3.5 h-3.5" />
+          <span className="text-xs font-semibold uppercase tracking-wide">Filter:</span>
         </div>
 
-        <select 
-          className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 hover:bg-white transition-all duration-200 cursor-pointer"
+        <select
+          className={`${SELECT_CLASS} flex-1 min-w-[130px]`}
           value={status}
           onChange={(e) => setStatus(e.target.value as FilterStatusType)}
         >
@@ -50,8 +53,8 @@ const FilterControls: React.FC<FilterControlsProps> = ({
           <option value="OUTSIDE">Outside Venue</option>
         </select>
 
-        <select 
-          className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-500/50 hover:bg-white transition-all duration-200 cursor-pointer"
+        <select
+          className={`${SELECT_CLASS} flex-1 min-w-[130px]`}
           value={violation}
           onChange={(e) => setViolation(e.target.value as FilterViolationType)}
         >
@@ -60,15 +63,14 @@ const FilterControls: React.FC<FilterControlsProps> = ({
         </select>
 
         {hasFilters && (
-          <button 
+          <button
             onClick={() => { setSearch(''); setStatus('ALL'); setViolation('ALL'); }}
-            className="flex items-center gap-1.5 shrink-0 px-3 py-2 text-sm font-medium text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-all duration-200"
+            className="flex items-center gap-1 shrink-0 px-2.5 py-2 text-xs font-semibold text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-all"
           >
-            <XCircle className="w-4 h-4" /> Clear
+            <XCircle className="w-3.5 h-3.5" /> Clear
           </button>
         )}
       </div>
-
     </div>
   );
 };

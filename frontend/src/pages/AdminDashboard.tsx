@@ -88,15 +88,15 @@ const AdminDashboard: React.FC = () => {
           ) : (
             <>
               {/* Tab Navigation */}
-              <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-2 no-scrollbar">
-                 <button onClick={() => setActiveTab('roster')} className={`flex items-center gap-2 px-5 py-2.5 font-semibold transition-all duration-300 rounded-xl relative ${activeTab === 'roster' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 -translate-y-0.5' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}>
-                   <LayoutList className="w-4 h-4" /> Participant Roster
+              <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 no-scrollbar">
+                 <button onClick={() => setActiveTab('roster')} className={`flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 text-sm font-semibold transition-all duration-300 rounded-xl whitespace-nowrap ${activeTab === 'roster' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 -translate-y-0.5' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}>
+                   <LayoutList className="w-4 h-4 shrink-0" /> <span>Roster</span>
                  </button>
-                 <button onClick={() => setActiveTab('teams')} className={`flex items-center gap-2 px-5 py-2.5 font-semibold transition-all duration-300 rounded-xl relative ${activeTab === 'teams' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 -translate-y-0.5' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}>
-                   <ShieldHalf className="w-4 h-4" /> Team Stats
+                 <button onClick={() => setActiveTab('teams')} className={`flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 text-sm font-semibold transition-all duration-300 rounded-xl whitespace-nowrap ${activeTab === 'teams' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 -translate-y-0.5' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}>
+                   <ShieldHalf className="w-4 h-4 shrink-0" /> <span>Teams</span>
                  </button>
-                 <button onClick={() => setActiveTab('config')} className={`flex items-center gap-2 px-5 py-2.5 font-semibold transition-all duration-300 rounded-xl relative ${activeTab === 'config' ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/30 -translate-y-0.5' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}>
-                   <Settings className="w-4 h-4" /> Rules Config
+                 <button onClick={() => setActiveTab('config')} className={`flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 text-sm font-semibold transition-all duration-300 rounded-xl whitespace-nowrap ${activeTab === 'config' ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/30 -translate-y-0.5' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}>
+                   <Settings className="w-4 h-4 shrink-0" /> <span>Rules</span>
                  </button>
               </div>
 
