@@ -127,7 +127,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, initialQ
               value={formData.name}
               onChange={handleChange}
               className={INPUT_BASE}
-              placeholder="e.g. Ravi Kumar"
+              placeholder="e.g. Alice"
               autoFocus={!initialQrId}
             />
           </div>
