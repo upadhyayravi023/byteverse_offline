@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Camera, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { Camera, Loader2 } from 'lucide-react';
 import { useZxing } from 'react-zxing'; // Alternative to react-qr-barcode-scanner that's very stable
 
 interface QRScannerCameraProps {
@@ -18,7 +18,8 @@ const QRScannerCamera: React.FC<QRScannerCameraProps> = ({ onScan, isLoading }) 
       }
     },
     onError(error) {
-      if (error.name === 'NotAllowedError') {
+      const err = error as { name?: string };
+      if (err.name === 'NotAllowedError') {
          setCameraError('Camera access denied.');
       }
     }
