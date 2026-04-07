@@ -87,12 +87,14 @@ exports.getSettings = async (req, res, next) => {
 
 exports.updateSettings = async (req, res, next) => {
   try {
-    const { maxShortBreaks } = req.body;
+    const { maxShortBreaks, maxShortBreakDurationMins, maxSleepBreakDurationMins } = req.body;
     let settings = await Settings.findOne({ singletonId: 'STATIC_SETTINGS' });
     if (!settings) {
-      settings = new Settings({ maxShortBreaks });
+      settings = new Settings({ maxShortBreaks, maxShortBreakDurationMins, maxSleepBreakDurationMins });
     } else {
-      if (typeof maxShortBreaks === 'number') settings.maxShortBreaks = maxShortBreaks;
+      if (typeof maxShortBreaks === 'number')            settings.maxShortBreaks            = maxShortBreaks;
+      if (typeof maxShortBreakDurationMins === 'number') settings.maxShortBreakDurationMins = maxShortBreakDurationMins;
+      if (typeof maxSleepBreakDurationMins === 'number') settings.maxSleepBreakDurationMins = maxSleepBreakDurationMins;
     }
     await settings.save();
     res.status(200).json({ success: true, data: settings });

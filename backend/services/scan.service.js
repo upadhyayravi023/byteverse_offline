@@ -5,22 +5,36 @@ const Settings = require('../models/Settings.model');
 const AppError = require('../utils/AppError');
 
 /**
+ * Helper — load settings with safe defaults
+ */
+const loadSettings = async (session) => {
+  let settings = await Settings.findOne({ singletonId: 'STATIC_SETTINGS' }).session(session);
+  if (!settings) settings = await Settings.create([{}], { session }).then(r => r[0]);
+  return {
+    maxShortBreaks:            settings.maxShortBreaks            ?? 3,
+    maxShortBreakDurationMins: settings.maxShortBreakDurationMins ?? 30,
+    maxSleepBreakDurationMins: settings.maxSleepBreakDurationMins ?? 240,
+  };
+};
+
+/**
  * Perform INITIAL scan
  */
 exports.initialScan = async (qrId) => {
   const participant = await Participant.findOne({ qrId });
   if (!participant) throw new AppError('Participant not found', 404);
 
-  // atomic start
   const session = await mongoose.startSession();
   session.startTransaction();
-
   try {
-    const existingLog = await ScanLog.findOne({ participantId: participant._id, scanType: 'ENTRY', breakType: 'INITIAL' }).session(session);
-    if (existingLog) {
-       throw new AppError('Initial scan already completed', 400);
-    }
-    
+    const existingLog = await ScanLog.findOne({
+      participantId: participant._id,
+      scanType: 'ENTRY',
+      breakType: 'INITIAL'
+    }).session(session);
+
+    if (existingLog) throw new AppError('Initial scan already completed', 400);
+
     const log = await ScanLog.create([{
       participantId: participant._id,
       scanType: 'ENTRY',
@@ -30,7 +44,6 @@ exports.initialScan = async (qrId) => {
 
     participant.isInsideVenue = true;
     await participant.save({ session });
-
     await session.commitTransaction();
     return log[0];
   } catch (err) {
@@ -54,7 +67,6 @@ exports.exitScan = async (qrId, breakType) => {
 
   const session = await mongoose.startSession();
   session.startTransaction();
-
   try {
     const log = await ScanLog.create([{
       participantId: participant._id,
@@ -64,10 +76,8 @@ exports.exitScan = async (qrId, breakType) => {
 
     participant.isInsideVenue = false;
     await participant.save({ session });
-
     await session.commitTransaction();
     return log[0];
-
   } catch (err) {
     await session.abortTransaction();
     throw err;
@@ -89,12 +99,14 @@ exports.entryScan = async (qrId) => {
 
   const session = await mongoose.startSession();
   session.startTransaction();
-
   try {
-    // Determine the last EXIT
-    const lastExit = await ScanLog.findOne({ 
-      participantId: participant._id, 
-      scanType: 'EXIT' 
+    // Load configurable rules
+    const { maxShortBreaks, maxShortBreakDurationMins, maxSleepBreakDurationMins } = await loadSettings(session);
+
+    // Find the last EXIT log
+    const lastExit = await ScanLog.findOne({
+      participantId: participant._id,
+      scanType: 'EXIT'
     }).sort({ timestamp: -1 }).session(session);
 
     if (!lastExit) {
@@ -102,77 +114,55 @@ exports.entryScan = async (qrId) => {
     }
 
     const now = new Date();
-    // Duration in minutes
-    const durationMins = Math.floor((now - lastExit.timestamp) / 60000);
+    const durationMins = Math.round((now - lastExit.timestamp) / 60000);
     const breakType = lastExit.breakType;
 
     let violationFlag = false;
-    let violationReason = '';
+    const violationReasons = [];
 
-    // RULE ENGINE EVALUATION
+    // ── SLEEP BREAK RULES ─────────────────────────────────────────────────────
     if (breakType === 'SLEEP') {
-      // 1. Is this the first sleep break? 
-      // Check prior exits for sleep break
-      const allSleepExits = await ScanLog.find({
+      // Rule 1: Only one sleep break allowed
+      const allSleepExits = await ScanLog.countDocuments({
         participantId: participant._id,
         scanType: 'EXIT',
         breakType: 'SLEEP'
       }).session(session);
 
-      if (allSleepExits.length > 1) {
+      if (allSleepExits > 1) {
         violationFlag = true;
-        violationReason += 'Sleep break already taken previously. ';
+        violationReasons.push(`Sleep break already taken previously (only 1 allowed).`);
       }
 
-      if (durationMins > 240) {
+      // Rule 2: Sleep break duration exceeded configured limit
+      if (durationMins > maxSleepBreakDurationMins) {
         violationFlag = true;
-        violationReason += `Sleep break exceeded 4 hours (was ${durationMins} mins). `;
+        violationReasons.push(
+          `Sleep break exceeded ${maxSleepBreakDurationMins} min limit (was ${durationMins} mins).`
+        );
       }
-    } else if (breakType === 'SHORT') {
-      // Find all past short exits
-      const allShortExits = await ScanLog.find({
+    }
+
+    // ── SHORT BREAK RULES ─────────────────────────────────────────────────────
+    else if (breakType === 'SHORT') {
+      const allShortExits = await ScanLog.countDocuments({
         participantId: participant._id,
         scanType: 'EXIT',
         breakType: 'SHORT'
-      }).sort({ timestamp: 1 }).session(session);
+      }).session(session);
 
-      let settings = await Settings.findOne({ singletonId: 'STATIC_SETTINGS' }).session(session);
-      const maxShort = settings ? settings.maxShortBreaks : 3;
-
-      if (allShortExits.length > maxShort) {
+      // Rule 1: Short break count exceeded
+      if (allShortExits > maxShortBreaks) {
         violationFlag = true;
-        violationReason += `Maximum of ${maxShort} short breaks exceeded. `;
+        violationReasons.push(`Maximum of ${maxShortBreaks} short breaks exceeded.`);
       }
 
-      if (durationMins > 30) {
-         violationFlag = true;
-         violationReason += `Short break exceeded 30 minutes (was ${durationMins} mins). `;
-      }
-
-      // Calculate cumulative short break duration from prior logs
-      // Need all entry-exit pairs for short breaks
-      let cumulativeMs = 0;
-      const allLogs = await ScanLog.find({
-        participantId: participant._id,
-        breakType: 'SHORT'
-      }).sort({ timestamp: 1 }).session(session);
-
-      let currentShortExit = null;
-      for (const log of allLogs) {
-        if (log.scanType === 'EXIT') {
-           currentShortExit = log;
-        } else if (log.scanType === 'ENTRY' && currentShortExit) {
-           cumulativeMs += (log.timestamp - currentShortExit.timestamp);
-           currentShortExit = null;
-        }
-      }
-      
-      // Add the current duration that is about to be grouped
-      const cumulativeMins = Math.floor(cumulativeMs / 60000) + durationMins;
-
-      if (cumulativeMins > 90) {
+      // Rule 2: This individual short break duration exceeded configured limit
+      if (durationMins > maxShortBreakDurationMins) {
         violationFlag = true;
-        violationReason += `Total short break time exceeded 90 minutes (was ${cumulativeMins} mins). `;
+        violationReasons.push(
+          `Short break exceeded ${maxShortBreakDurationMins} min limit (was ${durationMins} mins).`
+        );
       }
     }
 
@@ -182,15 +172,15 @@ exports.entryScan = async (qrId) => {
       scanType: 'ENTRY',
       breakType,
       violationFlag,
-      violationReason: violationReason.trim() || undefined
+      violationReason: violationReasons.join(' ') || undefined,
+      breakDurationMins: durationMins,
     }], { session });
 
     participant.isInsideVenue = true;
     await participant.save({ session });
-
     await session.commitTransaction();
 
-    return entryLog[0];
+    return { ...entryLog[0].toObject(), violationFlag, violationReason: violationReasons.join(' ') };
   } catch (err) {
     await session.abortTransaction();
     throw err;

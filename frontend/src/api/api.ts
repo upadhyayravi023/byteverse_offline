@@ -103,7 +103,7 @@ export const api = {
     return res.json();
   },
 
-  updateSettings: async (data: any) => {
+  updateSettings: async (data: { maxShortBreaks?: number; maxShortBreakDurationMins?: number; maxSleepBreakDurationMins?: number }) => {
     const res = await fetch(`${API_BASE}/admin/settings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
