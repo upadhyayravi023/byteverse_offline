@@ -28,7 +28,7 @@ const ScannerPage: React.FC = () => {
           try {
             const statusRes = await api.getParticipantStatus(data);
             if (statusRes.success) {
-              const stats = statusRes.data.stats;
+              const stats = statusRes.data;
               const history = statusRes.data.history || [];
               let limitReached = false;
               if (targetBreak === 'SHORT' && stats.shortBreaksRemaining === 0) limitReached = true;
