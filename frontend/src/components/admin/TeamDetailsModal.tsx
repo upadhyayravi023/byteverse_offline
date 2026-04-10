@@ -9,6 +9,9 @@ interface Participant {
   rollNumber: string;
   inside: boolean;
   remainingShort: number;
+  remainingLunch: number;
+  remainingBreakfast: number;
+  hasViolation: boolean;
   qrId: string;
 }
 
