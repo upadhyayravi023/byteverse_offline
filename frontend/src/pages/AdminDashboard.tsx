@@ -23,6 +23,7 @@ const AdminDashboard: React.FC = () => {
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [isViolationModalOpen, setIsViolationModalOpen] = useState(false);
   const [selectedHistoryQrId, setSelectedHistoryQrId] = useState<string | null>(null);
+  const [teamFilterStatus, setTeamFilterStatus] = useState<'ALL' | 'INSIDE' | 'OUTSIDE' | 'PARTIAL'>('ALL');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -68,7 +69,18 @@ const AdminDashboard: React.FC = () => {
     return acc;
   }, {} as Record<string, any>));
 
-  const filteredTeamStats = teamStats.filter((t: any) => t.teamName.toLowerCase().includes(search.toLowerCase()));
+  const filteredTeamStats = teamStats.filter((t: any) => {
+    const matchesSearch = t.teamName.toLowerCase().includes(search.toLowerCase());
+    let matchesStatus = true;
+    if (teamFilterStatus === 'INSIDE') {
+      matchesStatus = t.currentlyInside === t.totalMembers;
+    } else if (teamFilterStatus === 'OUTSIDE') {
+      matchesStatus = t.currentlyInside === 0;
+    } else if (teamFilterStatus === 'PARTIAL') {
+      matchesStatus = t.currentlyInside > 0 && t.currentlyInside < t.totalMembers;
+    }
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans flex flex-col">
@@ -147,9 +159,9 @@ const AdminDashboard: React.FC = () => {
 
                 {activeTab === 'teams' && (
                   <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-4">
-                    {/* Contextual Search for Teams */}
-                    <div className="bg-white/80 backdrop-blur-md border border-slate-200 shadow-sm rounded-xl p-4 flex items-center transition-all duration-300">
-                      <div className="relative w-full md:w-96 flex-shrink-0 group">
+                    {/* Contextual Search and Filter for Teams */}
+                    <div className="bg-white/80 backdrop-blur-md border border-slate-200 shadow-sm rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300">
+                      <div className="relative w-full sm:max-w-md flex-shrink-0 group">
                         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                         <input 
                           type="text" 
@@ -158,6 +170,19 @@ const AdminDashboard: React.FC = () => {
                           value={search}
                           onChange={e => setSearch(e.target.value)}
                         />
+                      </div>
+                      <div className="flex items-center shrink-0 w-full sm:w-auto">
+                        <span className="text-sm font-semibold text-slate-500 mr-3 hidden sm:block">Status</span>
+                        <select 
+                          value={teamFilterStatus}
+                          onChange={(e) => setTeamFilterStatus(e.target.value as any)}
+                          className="w-full sm:w-auto px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500/50 hover:bg-white cursor-pointer shadow-sm transition-colors"
+                        >
+                          <option value="ALL">All Teams</option>
+                          <option value="INSIDE">100% Inside</option>
+                          <option value="PARTIAL">Partial Inside</option>
+                          <option value="OUTSIDE">100% Outside</option>
+                        </select>
                       </div>
                     </div>
                     <div className="flex items-center justify-between mb-4">
