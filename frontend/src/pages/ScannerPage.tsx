@@ -35,7 +35,7 @@ const ScannerPage: React.FC = () => {
               if (targetBreak === 'LUNCH' && stats.lunchBreaksRemaining === 0) limitReached = true;
               if (targetBreak === 'BREAKFAST' && stats.breakfastBreaksRemaining === 0) limitReached = true;
 
-              const violationCount = history.filter((l: any) => l.violationFlag).length;
+              const violationCount = history.filter((l: any) => l.violationFlag && l.breakType === targetBreak).length;
               if (limitReached) {
                 setExitConfirmData({ qrId: data, breakType: targetBreak as BreakType, violationCount, isLimitReached: true });
                 setIsLoading(false);
@@ -253,7 +253,7 @@ const ScannerPage: React.FC = () => {
                 {exitConfirmData.violationCount}
               </div>
               <p className="text-sm font-semibold text-rose-900 leading-tight">
-                previous violations on record for this volunteer.
+                previous <span className="font-bold">{exitConfirmData.breakType}</span> break violations on record for this volunteer.
               </p>
             </div>
 
