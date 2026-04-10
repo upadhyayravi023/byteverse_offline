@@ -81,6 +81,8 @@ const ParticipantHistoryModal: React.FC<ParticipantHistoryModalProps> = ({ qrId,
                           {isEntry ? 'Entry' : 'Exit'} 
                           <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider ${
                             log.breakType === 'INITIAL' ? 'bg-blue-100 text-blue-700' : 
+                            log.breakType === 'LUNCH' ? 'bg-amber-100 text-amber-700' : 
+                            log.breakType === 'BREAKFAST' ? 'bg-orange-100 text-orange-700' : 
                             log.breakType === 'SLEEP' ? 'bg-indigo-100 text-indigo-700' : 
                             'bg-slate-100 text-slate-600'
                           }`}>

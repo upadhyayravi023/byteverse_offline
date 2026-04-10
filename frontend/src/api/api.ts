@@ -1,5 +1,5 @@
 export type ActionType = 'ENTRY' | 'EXIT' | 'INITIAL';
-export type BreakType = 'SHORT' | 'SLEEP' | 'NONE';
+export type BreakType = 'SHORT' | 'LUNCH' | 'BREAKFAST' | 'NONE';
 
 export interface ScanResult {
   success: boolean;
@@ -109,7 +109,7 @@ export const api = {
     return res.json();
   },
 
-  updateSettings: async (data: { maxShortBreaks?: number; maxShortBreakDurationMins?: number; maxSleepBreakDurationMins?: number }) => {
+  updateSettings: async (data: { maxShortBreaks?: number; maxShortBreakDurationMins?: number }) => {
     const res = await fetch(`${API_BASE}/admin/settings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

@@ -31,15 +31,16 @@ exports.getParticipantStatus = async (qrId) => {
 
   const logs = await ScanLog.find({ participantId: participant._id }).sort({ timestamp: -1 });
 
-  // Calculate stats
-  let sleepBreakCount = 0;
   let shortBreakCount = 0;
+  let lunchBreakCount = 0;
+  let breakfastBreakCount = 0;
   let accumulatedShortBreakMins = 0;
 
   logs.forEach(log => {
      if (log.scanType === 'EXIT') {
-       if (log.breakType === 'SLEEP') sleepBreakCount++;
        if (log.breakType === 'SHORT') shortBreakCount++;
+       if (log.breakType === 'LUNCH') lunchBreakCount++;
+       if (log.breakType === 'BREAKFAST') breakfastBreakCount++;
      }
   });
 
@@ -69,11 +70,12 @@ exports.getParticipantStatus = async (qrId) => {
   return {
     participant,
     history: logs,
-    stats: {
-      sleepBreakTaken: sleepBreakCount > 0,
       shortBreaksTaken: shortBreakCount,
-      shortBreaksRemaining: Math.max(0, 3 - shortBreakCount),
+      shortBreaksRemaining: Math.max(0, 4 - shortBreakCount),
+      lunchBreaksTaken: lunchBreakCount,
+      lunchBreaksRemaining: Math.max(0, 2 - lunchBreakCount),
+      breakfastBreaksTaken: breakfastBreakCount,
+      breakfastBreaksRemaining: Math.max(0, 2 - breakfastBreakCount),
       accumulatedShortBreakMins: accumulatedShortBreakMinsActual,
-    }
   };
 };

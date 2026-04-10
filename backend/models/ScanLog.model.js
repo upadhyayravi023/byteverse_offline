@@ -19,7 +19,7 @@ const scanLogSchema = new mongoose.Schema(
     },
     breakType: {
       type: String,
-      enum: ['SHORT', 'SLEEP', 'INITIAL'],
+      enum: ['SHORT', 'LUNCH', 'BREAKFAST', 'INITIAL'],
       required: true,
     },
     violationFlag: {

@@ -9,7 +9,7 @@ exports.initialScanSchema = z.object({
 exports.exitScanSchema = z.object({
   body: z.object({
     qrId: z.string().min(1, 'qrId is required'),
-    breakType: z.enum(['SHORT', 'SLEEP']),
+    breakType: z.enum(['SHORT', 'LUNCH', 'BREAKFAST']),
   }),
 });
 

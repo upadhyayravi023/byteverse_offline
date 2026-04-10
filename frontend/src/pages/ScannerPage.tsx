@@ -3,7 +3,7 @@ import QRScannerCamera from '../components/scanner/QRScannerCamera';
 import ScanResultOverlay from '../components/scanner/ScanResultOverlay';
 import RegisterModal from '../components/scanner/RegisterModal';
 import { api, type ActionType, type BreakType, type ScanResult } from '../api/api';
-import { LogIn, LogOut, Coffee, Moon, Scan, QrCode, Shield } from 'lucide-react';
+import { LogIn, LogOut, Coffee, Sunrise, Utensils, Scan, QrCode, Shield } from 'lucide-react';
 
 const ScannerPage: React.FC = () => {
   const [mode, setMode] = useState<ActionType>('ENTRY');
@@ -32,7 +32,8 @@ const ScannerPage: React.FC = () => {
               const history = statusRes.data.history || [];
               let limitReached = false;
               if (targetBreak === 'SHORT' && stats.shortBreaksRemaining === 0) limitReached = true;
-              if (targetBreak === 'SLEEP' && stats.sleepBreakTaken) limitReached = true;
+              if (targetBreak === 'LUNCH' && stats.lunchBreaksRemaining === 0) limitReached = true;
+              if (targetBreak === 'BREAKFAST' && stats.breakfastBreaksRemaining === 0) limitReached = true;
 
               if (limitReached) {
                 const violationCount = history.filter((l: any) => l.violationFlag).length;
@@ -174,7 +175,7 @@ const ScannerPage: React.FC = () => {
               <BreakButton
                 icon={<Coffee className="w-5 h-5" />}
                 label="Short Break"
-                sublabel="Max 3 allowed"
+                sublabel="Max 4 allowed"
                 isActive={breakType === 'SHORT'}
                 activeClass="border-blue-500 bg-blue-500/10"
                 inactiveClass="border-white/[0.07] bg-white/5"
@@ -182,14 +183,24 @@ const ScannerPage: React.FC = () => {
                 onClick={() => setBreakType('SHORT')}
               />
               <BreakButton
-                icon={<Moon className="w-5 h-5" />}
-                label="Sleep Break"
-                sublabel="8hr max · 1 allowed"
-                isActive={breakType === 'SLEEP'}
-                activeClass="border-indigo-500 bg-indigo-500/10"
+                icon={<Utensils className="w-5 h-5" />}
+                label="Lunch Break"
+                sublabel="Max 2 allowed"
+                isActive={breakType === 'LUNCH'}
+                activeClass="border-amber-500 bg-amber-500/10"
                 inactiveClass="border-white/[0.07] bg-white/5"
-                iconClass={breakType === 'SLEEP' ? 'text-indigo-400' : 'text-slate-600'}
-                onClick={() => setBreakType('SLEEP')}
+                iconClass={breakType === 'LUNCH' ? 'text-amber-400' : 'text-slate-600'}
+                onClick={() => setBreakType('LUNCH')}
+              />
+              <BreakButton
+                icon={<Sunrise className="w-5 h-5" />}
+                label="Breakfast"
+                sublabel="Max 2 allowed"
+                isActive={breakType === 'BREAKFAST'}
+                activeClass="border-orange-500 bg-orange-500/10"
+                inactiveClass="border-white/[0.07] bg-white/5"
+                iconClass={breakType === 'BREAKFAST' ? 'text-orange-400' : 'text-slate-600'}
+                onClick={() => setBreakType('BREAKFAST')}
               />
             </div>
           </div>

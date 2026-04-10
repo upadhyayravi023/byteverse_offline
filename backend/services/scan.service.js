@@ -11,9 +11,8 @@ const loadSettings = async (session) => {
   let settings = await Settings.findOne({ singletonId: 'STATIC_SETTINGS' }).session(session);
   if (!settings) settings = await Settings.create([{}], { session }).then(r => r[0]);
   return {
-    maxShortBreaks:            settings.maxShortBreaks            ?? 3,
+    maxShortBreaks:            settings.maxShortBreaks            ?? 4,
     maxShortBreakDurationMins: settings.maxShortBreakDurationMins ?? 30,
-    maxSleepBreakDurationMins: settings.maxSleepBreakDurationMins ?? 240,
   };
 };
 
@@ -104,8 +103,8 @@ exports.entryScan = async (qrId) => {
   const session = await mongoose.startSession();
   try {
     return await session.withTransaction(async () => {
-      // Load configurable rules
-      const { maxShortBreaks, maxShortBreakDurationMins, maxSleepBreakDurationMins } = await loadSettings(session);
+      // Load configurable rules for short break
+      const { maxShortBreaks, maxShortBreakDurationMins } = await loadSettings(session);
 
       // Find the last EXIT log
       const lastExit = await ScanLog.findOne({
@@ -124,22 +123,41 @@ exports.entryScan = async (qrId) => {
       let violationFlag = false;
       const violationReasons = [];
 
-      // ── SLEEP BREAK RULES ─────────────────────────────────────────────────────
-      if (breakType === 'SLEEP') {
-        const allSleepExits = await ScanLog.countDocuments({
+      // ── LUNCH BREAK RULES ─────────────────────────────────────────────────────
+      if (breakType === 'LUNCH') {
+        const allLunchExits = await ScanLog.countDocuments({
           participantId: participant._id,
           scanType: 'EXIT',
-          breakType: 'SLEEP'
+          breakType: 'LUNCH'
         }).session(session);
 
-        if (allSleepExits > 1) {
+        if (allLunchExits > 2) {
           violationFlag = true;
-          violationReasons.push(`Sleep break already taken previously (only 1 allowed).`);
+          violationReasons.push(`Maximum of 2 lunch breaks exceeded.`);
         }
 
-        if (durationMins > maxSleepBreakDurationMins) {
+        if (durationMins > 45) {
           violationFlag = true;
-          violationReasons.push(`Sleep break exceeded ${maxSleepBreakDurationMins} min limit (was ${durationMins} mins).`);
+          violationReasons.push(`Lunch break exceeded 45 min limit (was ${durationMins} mins).`);
+        }
+      }
+
+      // ── BREAKFAST BREAK RULES ──────────────────────────────────────────────────
+      else if (breakType === 'BREAKFAST') {
+        const allBreakfastExits = await ScanLog.countDocuments({
+          participantId: participant._id,
+          scanType: 'EXIT',
+          breakType: 'BREAKFAST'
+        }).session(session);
+
+        if (allBreakfastExits > 2) {
+          violationFlag = true;
+          violationReasons.push(`Maximum of 2 breakfast breaks exceeded.`);
+        }
+
+        if (durationMins > 45) {
+          violationFlag = true;
+          violationReasons.push(`Breakfast break exceeded 45 min limit (was ${durationMins} mins).`);
         }
       }
 

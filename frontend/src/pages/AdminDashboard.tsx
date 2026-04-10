@@ -62,10 +62,9 @@ const AdminDashboard: React.FC = () => {
   });
 
   const teamStats = Object.values(participants.reduce((acc, p) => {
-    if (!acc[p.team]) acc[p.team] = { teamName: p.team, totalMembers: 0, currentlyInside: 0, sleepBreaksTaken: 0 };
+    if (!acc[p.team]) acc[p.team] = { teamName: p.team, totalMembers: 0, currentlyInside: 0 };
     acc[p.team].totalMembers++;
     if (p.inside) acc[p.team].currentlyInside++;
-    if (p.sleepUsed) acc[p.team].sleepBreaksTaken++;
     return acc;
   }, {} as Record<string, any>));
 

@@ -5,7 +5,6 @@ interface TeamStat {
   teamName: string;
   totalMembers: number;
   currentlyInside: number;
-  sleepBreaksTaken: number;
 }
 
 interface Props {
@@ -44,7 +43,7 @@ const TeamStatsTable: React.FC<Props> = ({ data, onTeamClick }) => {
                   <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${cls}`}>{label}</span>
                 </div>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  {team.currentlyInside}/{team.totalMembers} inside &middot; {team.sleepBreaksTaken} sleep break{team.sleepBreaksTaken !== 1 ? 's' : ''}
+                  {team.currentlyInside}/{team.totalMembers} inside
                 </p>
               </div>
               {clickable && <ChevronRight className="w-4 h-4 shrink-0 text-slate-400" />}
@@ -62,7 +61,6 @@ const TeamStatsTable: React.FC<Props> = ({ data, onTeamClick }) => {
               <th className="px-5 py-3.5 font-semibold text-slate-600">Total</th>
               <th className="px-5 py-3.5 font-semibold text-slate-600">Inside</th>
               <th className="px-5 py-3.5 font-semibold text-slate-600">Status</th>
-              <th className="px-5 py-3.5 font-semibold text-slate-600">Sleep Breaks</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -80,7 +78,6 @@ const TeamStatsTable: React.FC<Props> = ({ data, onTeamClick }) => {
                   <td className="px-5 py-3.5">
                     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${cls}`}>{label}</span>
                   </td>
-                  <td className="px-5 py-3.5 text-slate-600 font-mono">{team.sleepBreaksTaken}</td>
                 </tr>
               );
             })}

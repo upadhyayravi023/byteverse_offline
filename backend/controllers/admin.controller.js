@@ -36,11 +36,12 @@ exports.getParticipants = async (req, res, next) => {
     const logsByParticipant = {};
     allLogs.forEach(log => {
       const pId = log.participantId.toString();
-      if (!logsByParticipant[pId]) logsByParticipant[pId] = { sleep: 0, short: 0, hasViolation: false };
+      if (!logsByParticipant[pId]) logsByParticipant[pId] = { short: 0, lunch: 0, breakfast: 0, hasViolation: false };
       
       if (log.scanType === 'EXIT') {
-        if (log.breakType === 'SLEEP') logsByParticipant[pId].sleep++;
         if (log.breakType === 'SHORT') logsByParticipant[pId].short++;
+        if (log.breakType === 'LUNCH') logsByParticipant[pId].lunch++;
+        if (log.breakType === 'BREAKFAST') logsByParticipant[pId].breakfast++;
       }
       
       if (log.violationFlag) {
@@ -50,7 +51,7 @@ exports.getParticipants = async (req, res, next) => {
 
     const data = participants.map(p => {
       const pId = p._id.toString();
-      const stats = logsByParticipant[pId] || { sleep: 0, short: 0, hasViolation: false };
+      const stats = logsByParticipant[pId] || { short: 0, lunch: 0, breakfast: 0, hasViolation: false };
       return {
         id: p._id,
         qrId: p.qrId,
@@ -58,8 +59,9 @@ exports.getParticipants = async (req, res, next) => {
         team: p.teamName || p.teamId,
         rollNumber: p.rollNumber,
         inside: p.isInsideVenue,
-        remainingShort: Math.max(0, 3 - stats.short),
-        sleepUsed: stats.sleep > 0,
+        remainingShort: Math.max(0, 4 - stats.short),
+        remainingLunch: Math.max(0, 2 - stats.lunch),
+        remainingBreakfast: Math.max(0, 2 - stats.breakfast),
         hasViolation: stats.hasViolation
       };
     });
@@ -87,14 +89,13 @@ exports.getSettings = async (req, res, next) => {
 
 exports.updateSettings = async (req, res, next) => {
   try {
-    const { maxShortBreaks, maxShortBreakDurationMins, maxSleepBreakDurationMins } = req.body;
+    const { maxShortBreaks, maxShortBreakDurationMins } = req.body;
     let settings = await Settings.findOne({ singletonId: 'STATIC_SETTINGS' });
     if (!settings) {
-      settings = new Settings({ maxShortBreaks, maxShortBreakDurationMins, maxSleepBreakDurationMins });
+      settings = new Settings({ maxShortBreaks, maxShortBreakDurationMins });
     } else {
       if (typeof maxShortBreaks === 'number')            settings.maxShortBreaks            = maxShortBreaks;
       if (typeof maxShortBreakDurationMins === 'number') settings.maxShortBreakDurationMins = maxShortBreakDurationMins;
-      if (typeof maxSleepBreakDurationMins === 'number') settings.maxSleepBreakDurationMins = maxSleepBreakDurationMins;
     }
     await settings.save();
     res.status(200).json({ success: true, data: settings });

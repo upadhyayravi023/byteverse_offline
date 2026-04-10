@@ -7,7 +7,6 @@ interface Participant {
   rollNumber: string;
   inside: boolean;
   remainingShort: number;
-  sleepUsed: boolean;
   qrId: string;
 }
 
@@ -39,9 +38,7 @@ const ParticipantTable: React.FC<Props> = ({ data, onParticipantClick }) => {
               </div>
               <p className="text-xs text-slate-500 mt-0.5 truncate">{p.team} &middot; {p.rollNumber}</p>
               <div className="flex items-center gap-3 mt-1.5 text-xs text-slate-400 font-medium">
-                <span>Short breaks left: <span className={p.remainingShort === 0 ? 'text-amber-600 font-bold' : 'text-slate-600'}>{p.remainingShort}</span>/3</span>
-                <span>&middot;</span>
-                <span>Sleep: <span className={p.sleepUsed ? 'text-amber-600 font-bold' : 'text-slate-400'}>{p.sleepUsed ? 'Used' : 'Available'}</span></span>
+                <span>Short breaks left: <span className={p.remainingShort === 0 ? 'text-amber-600 font-bold' : 'text-slate-600'}>{p.remainingShort}</span>/4</span>
               </div>
             </div>
           </div>
@@ -58,7 +55,6 @@ const ParticipantTable: React.FC<Props> = ({ data, onParticipantClick }) => {
               <th className="px-5 py-3.5 font-semibold text-slate-600">Roll No</th>
               <th className="px-5 py-3.5 font-semibold text-slate-600">Status</th>
               <th className="px-5 py-3.5 font-semibold text-slate-600">Breaks left</th>
-              <th className="px-5 py-3.5 font-semibold text-slate-600 hidden lg:table-cell">Sleep</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -74,17 +70,12 @@ const ParticipantTable: React.FC<Props> = ({ data, onParticipantClick }) => {
                   </span>
                 </td>
                 <td className="px-5 py-3.5 text-slate-600 text-center">
-                  <span className={`font-mono ${p.remainingShort === 0 ? 'text-amber-600 font-bold' : ''}`}>{p.remainingShort}</span>/3
-                </td>
-                <td className="px-5 py-3.5 hidden lg:table-cell">
-                  {p.sleepUsed
-                    ? <span className="text-amber-600 font-medium">Used</span>
-                    : <span className="text-slate-400">–</span>}
+                  <span className={`font-mono ${p.remainingShort === 0 ? 'text-amber-600 font-bold' : ''}`}>{p.remainingShort}</span>/4
                 </td>
               </tr>
             ))}
             {data.length === 0 && (
-              <tr><td colSpan={6} className="px-5 py-8 text-center text-slate-500">No participants found.</td></tr>
+              <tr><td colSpan={5} className="px-5 py-8 text-center text-slate-500">No participants found.</td></tr>
             )}
           </tbody>
         </table>
