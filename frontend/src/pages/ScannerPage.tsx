@@ -12,7 +12,7 @@ const ScannerPage: React.FC = () => {
   const [result, setResult] = useState<ScanResult | null>(null);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [unknownQrId, setUnknownQrId] = useState<string | null>(null);
-  const [exitConfirmData, setExitConfirmData] = useState<{qrId: string, breakType: BreakType, violationCount: number} | null>(null);
+  const [exitConfirmData, setExitConfirmData] = useState<{qrId: string, breakType: BreakType, violationCount: number, isLimitReached: boolean} | null>(null);
 
   const handleScan = async (data: string) => {
     if (isLoading || result) return;
@@ -35,11 +35,15 @@ const ScannerPage: React.FC = () => {
               if (targetBreak === 'LUNCH' && stats.lunchBreaksRemaining === 0) limitReached = true;
               if (targetBreak === 'BREAKFAST' && stats.breakfastBreaksRemaining === 0) limitReached = true;
 
+              const violationCount = history.filter((l: any) => l.violationFlag).length;
               if (limitReached) {
-                const violationCount = history.filter((l: any) => l.violationFlag).length;
-                setExitConfirmData({ qrId: data, breakType: targetBreak as BreakType, violationCount });
+                setExitConfirmData({ qrId: data, breakType: targetBreak as BreakType, violationCount, isLimitReached: true });
                 setIsLoading(false);
                 return; // Wait for user interaction
+              } else if (violationCount > 0) {
+                setExitConfirmData({ qrId: data, breakType: targetBreak as BreakType, violationCount, isLimitReached: false });
+                setIsLoading(false);
+                return;
               }
             }
           } catch (e) {
@@ -232,9 +236,15 @@ const ScannerPage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl relative animate-in zoom-in-95 duration-200 border border-white/20">
             <div className="mb-4">
-              <h3 className="text-xl font-black text-rose-600 mb-1">Limit Reached!</h3>
+              <h3 className="text-xl font-black text-rose-600 mb-1">
+                {exitConfirmData.isLimitReached ? "Limit Reached!" : "Attention Required"}
+              </h3>
               <p className="text-sm font-medium text-slate-500">
-                They have already hit the <span className="font-extrabold text-slate-800">{exitConfirmData.breakType}</span> break limit.
+                {exitConfirmData.isLimitReached ? (
+                  <>They have already hit the <span className="font-extrabold text-slate-800">{exitConfirmData.breakType}</span> break limit.</>
+                ) : (
+                  <>This participant is requesting a <span className="font-extrabold text-slate-800">{exitConfirmData.breakType}</span> break.</>
+                )}
               </p>
             </div>
             
