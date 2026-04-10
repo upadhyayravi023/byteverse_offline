@@ -4,17 +4,9 @@ const ScanLog = require('../models/ScanLog.model');
 const Settings = require('../models/Settings.model');
 const AppError = require('../utils/AppError');
 
-/**
- * Helper — load settings with safe defaults
- */
-const loadSettings = async (session) => {
-  let settings = await Settings.findOne({ singletonId: 'STATIC_SETTINGS' }).session(session);
-  if (!settings) settings = await Settings.create([{}], { session }).then(r => r[0]);
-  return {
-    maxShortBreaks:            settings.maxShortBreaks            ?? 4,
-    maxShortBreakDurationMins: settings.maxShortBreakDurationMins ?? 30,
-  };
-};
+// Configurable logic was deprecated in favor of hard-coded fixed rules
+const MAX_SHORT_BREAKS = 4;
+const MAX_SHORT_BREAK_DURATION_MINS = 30;
 
 /**
  * Perform INITIAL scan
@@ -69,7 +61,6 @@ exports.exitScan = async (qrId, breakType) => {
   const session = await mongoose.startSession();
   try {
     return await session.withTransaction(async () => {
-      const { maxShortBreaks } = await loadSettings(session);
       let violationFlag = false;
       const violationReasons = [];
 
@@ -87,9 +78,9 @@ exports.exitScan = async (qrId, breakType) => {
         }
       } else if (breakType === 'SHORT') {
         const pastShorts = await ScanLog.countDocuments({ participantId: participant._id, scanType: 'EXIT', breakType: 'SHORT' }).session(session);
-        if (pastShorts >= maxShortBreaks) {
+        if (pastShorts >= MAX_SHORT_BREAKS) {
           violationFlag = true;
-          violationReasons.push(`Maximum of ${maxShortBreaks} short breaks exceeded.`);
+          violationReasons.push(`Maximum of ${MAX_SHORT_BREAKS} short breaks exceeded.`);
         }
       }
 
@@ -129,9 +120,6 @@ exports.entryScan = async (qrId) => {
   const session = await mongoose.startSession();
   try {
     return await session.withTransaction(async () => {
-      // Load configurable rules for short break
-      const { maxShortBreaks, maxShortBreakDurationMins } = await loadSettings(session);
-
       // Find the last EXIT log
       const lastExit = await ScanLog.findOne({
         participantId: participant._id,
@@ -167,9 +155,9 @@ exports.entryScan = async (qrId) => {
 
       // ── SHORT BREAK RULES ─────────────────────────────────────────────────────
       else if (breakType === 'SHORT') {
-        if (durationMins > maxShortBreakDurationMins) {
+        if (durationMins > MAX_SHORT_BREAK_DURATION_MINS) {
           violationFlag = true;
-          violationReasons.push(`Short break exceeded ${maxShortBreakDurationMins} min limit (was ${durationMins} mins).`);
+          violationReasons.push(`Short break exceeded ${MAX_SHORT_BREAK_DURATION_MINS} min limit (was ${durationMins} mins).`);
         }
       }
 
