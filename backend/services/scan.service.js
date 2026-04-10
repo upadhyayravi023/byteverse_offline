@@ -69,10 +69,36 @@ exports.exitScan = async (qrId, breakType) => {
   const session = await mongoose.startSession();
   try {
     return await session.withTransaction(async () => {
+      const { maxShortBreaks } = await loadSettings(session);
+      let violationFlag = false;
+      const violationReasons = [];
+
+      if (breakType === 'LUNCH') {
+        const pastLunches = await ScanLog.countDocuments({ participantId: participant._id, scanType: 'EXIT', breakType: 'LUNCH' }).session(session);
+        if (pastLunches >= 2) {
+          violationFlag = true;
+          violationReasons.push(`Maximum of 2 lunch breaks exceeded.`);
+        }
+      } else if (breakType === 'BREAKFAST') {
+        const pastBreakfasts = await ScanLog.countDocuments({ participantId: participant._id, scanType: 'EXIT', breakType: 'BREAKFAST' }).session(session);
+        if (pastBreakfasts >= 2) {
+          violationFlag = true;
+          violationReasons.push(`Maximum of 2 breakfast breaks exceeded.`);
+        }
+      } else if (breakType === 'SHORT') {
+        const pastShorts = await ScanLog.countDocuments({ participantId: participant._id, scanType: 'EXIT', breakType: 'SHORT' }).session(session);
+        if (pastShorts >= maxShortBreaks) {
+          violationFlag = true;
+          violationReasons.push(`Maximum of ${maxShortBreaks} short breaks exceeded.`);
+        }
+      }
+
       const log = await ScanLog.create([{
         participantId: participant._id,
         scanType: 'EXIT',
         breakType,
+        violationFlag,
+        violationReason: violationReasons.join(' ') || undefined,
       }], { session });
 
       participant.isInsideVenue = false;
@@ -125,17 +151,6 @@ exports.entryScan = async (qrId) => {
 
       // ── LUNCH BREAK RULES ─────────────────────────────────────────────────────
       if (breakType === 'LUNCH') {
-        const allLunchExits = await ScanLog.countDocuments({
-          participantId: participant._id,
-          scanType: 'EXIT',
-          breakType: 'LUNCH'
-        }).session(session);
-
-        if (allLunchExits > 2) {
-          violationFlag = true;
-          violationReasons.push(`Maximum of 2 lunch breaks exceeded.`);
-        }
-
         if (durationMins > 45) {
           violationFlag = true;
           violationReasons.push(`Lunch break exceeded 45 min limit (was ${durationMins} mins).`);
@@ -144,17 +159,6 @@ exports.entryScan = async (qrId) => {
 
       // ── BREAKFAST BREAK RULES ──────────────────────────────────────────────────
       else if (breakType === 'BREAKFAST') {
-        const allBreakfastExits = await ScanLog.countDocuments({
-          participantId: participant._id,
-          scanType: 'EXIT',
-          breakType: 'BREAKFAST'
-        }).session(session);
-
-        if (allBreakfastExits > 2) {
-          violationFlag = true;
-          violationReasons.push(`Maximum of 2 breakfast breaks exceeded.`);
-        }
-
         if (durationMins > 45) {
           violationFlag = true;
           violationReasons.push(`Breakfast break exceeded 45 min limit (was ${durationMins} mins).`);
@@ -163,17 +167,6 @@ exports.entryScan = async (qrId) => {
 
       // ── SHORT BREAK RULES ─────────────────────────────────────────────────────
       else if (breakType === 'SHORT') {
-        const allShortExits = await ScanLog.countDocuments({
-          participantId: participant._id,
-          scanType: 'EXIT',
-          breakType: 'SHORT'
-        }).session(session);
-
-        if (allShortExits > maxShortBreaks) {
-          violationFlag = true;
-          violationReasons.push(`Maximum of ${maxShortBreaks} short breaks exceeded.`);
-        }
-
         if (durationMins > maxShortBreakDurationMins) {
           violationFlag = true;
           violationReasons.push(`Short break exceeded ${maxShortBreakDurationMins} min limit (was ${durationMins} mins).`);
