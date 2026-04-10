@@ -85,7 +85,7 @@ const SettingsPanel: React.FC = () => {
                 <label className="text-sm font-semibold">Maximum Count</label>
               </div>
               <p className="text-xs text-slate-400">Total breakfast breaks allowed.</p>
-              <div className="mt-2 text-xl font-black text-slate-800">2 <span className="text-sm font-medium text-slate-500 uppercase tracking-widest pl-1">breaks</span></div>
+              <div className="mt-2 text-xl font-black text-slate-800">1 <span className="text-sm font-medium text-slate-500 uppercase tracking-widest pl-1">break</span></div>
             </div>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-slate-600">

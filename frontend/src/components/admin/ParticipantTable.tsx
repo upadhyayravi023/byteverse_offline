@@ -48,7 +48,7 @@ const ParticipantTable: React.FC<Props> = ({ data, onParticipantClick }) => {
                 <span className="shrink-0">&bull;</span>
                 <span className="shrink-0">Lunch: <span className={p.remainingLunch === 0 ? 'text-amber-600 font-bold' : 'text-slate-600'}>{p.remainingLunch}</span>/2</span>
                 <span className="shrink-0">&bull;</span>
-                <span className="shrink-0">Breakfast: <span className={p.remainingBreakfast === 0 ? 'text-amber-600 font-bold' : 'text-slate-600'}>{p.remainingBreakfast}</span>/2</span>
+                <span className="shrink-0">Breakfast: <span className={p.remainingBreakfast === 0 ? 'text-amber-600 font-bold' : 'text-slate-600'}>{p.remainingBreakfast}</span>/1</span>
               </div>
             </div>
           </div>
@@ -88,7 +88,7 @@ const ParticipantTable: React.FC<Props> = ({ data, onParticipantClick }) => {
                 </td>
                 <td className="px-5 py-3.5 text-slate-500 text-xs">
                   <span className="mr-3">Lunch: <span className={`font-mono ${p.remainingLunch === 0 ? 'text-amber-600 font-bold' : 'text-slate-600'}`}>{p.remainingLunch}</span>/2</span>
-                  <span>Bfkst: <span className={`font-mono ${p.remainingBreakfast === 0 ? 'text-amber-600 font-bold' : 'text-slate-600'}`}>{p.remainingBreakfast}</span>/2</span>
+                  <span>Bfkst: <span className={`font-mono ${p.remainingBreakfast === 0 ? 'text-amber-600 font-bold' : 'text-slate-600'}`}>{p.remainingBreakfast}</span>/1</span>
                 </td>
               </tr>
             ))}

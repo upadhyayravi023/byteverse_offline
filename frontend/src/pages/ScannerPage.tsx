@@ -199,7 +199,7 @@ const ScannerPage: React.FC = () => {
               <BreakButton
                 icon={<Sunrise className="w-5 h-5" />}
                 label="Breakfast"
-                sublabel="Max 2 allowed"
+                sublabel="Max 1 allowed"
                 isActive={breakType === 'BREAKFAST'}
                 activeClass="border-orange-500 bg-orange-500/10"
                 inactiveClass="border-white/[0.07] bg-white/5"
